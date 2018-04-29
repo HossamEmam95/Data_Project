@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+Logged in : {{logedin}}<br>
+{% for user in users %}
+{{user}} <br>
+{%endfor%}
+<br><br>
+<a href="{% url 'logout' %}">Logout</a><br>
+<a href="{% url 'create_timeline'%}">POST</a>
+<a href="{% url 'timeline' %}">Timeline</a><br>
+</body>
+</html>
