@@ -13,8 +13,7 @@ class LoginForm(forms.Form):
         password = self.cleaned_data['password']
 
         user_qs = User.objects.filter(username=username)
-        if user_qs.count() == 1:
-            user = user_qs.first()
+        user = user_qs.first()
         if username and password:
             if not user:
                 raise forms.ValidationError("This user does not exist")
@@ -42,6 +41,7 @@ class RegisterForm(forms.ModelForm):
                   'work',
                   'address',
                   'phone_number',
+                  'gender'
                   )
 
     def clean(self):

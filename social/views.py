@@ -1,10 +1,9 @@
-from django.db.models import Q
 from django.contrib.auth import (
     authenticate, login, logout
     )
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.hashers import make_password
-from django.views.generic import CreateView, UpdateView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView, ListView
 from django.shortcuts import render, HttpResponseRedirect, reverse
 
 from .forms import LoginForm, RegisterForm
@@ -14,9 +13,18 @@ from .models import User, Post, Group, Comment, Like, CustomerGroup, FriendShip
 def home(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    users = User.objects.all()
-    logedin = request.user
-    return render(request, 'home.html', {"users": users, "logedin": logedin})
+    user = request.user
+    groups = Group.objects.filter(group_user__user=request.user)
+    friends = User.objects.filter(user_friend__user2=user)
+    posts = Post.objects.filter(user=user)
+
+    context = {
+        'user': user,
+        'friends': friends,
+        'groups': groups,
+        'posts': posts,
+    }
+    return render(request, 'home.html', context)
 
 
 def login_view(request):
@@ -81,14 +89,15 @@ class ListPosts(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListPosts, self).get_context_data(**kwargs)
-        friends = FriendShip.objects.filter(Q(user1=self.request.user) | Q(user2=self.request.user))
-        filtered_posts = Post.objects.filter(
-            Q(user=self.request.user) |
-            Q(user__user_friend__in=friends) |
-            Q(user__user_friend1__in=friends)
-        )
+        friends = User.objects.filter(user_friend__user1=self.request.user)
+        groups = Group.objects.filter(group_user__user=self.request.user)
+        q_s1 = list(Post.objects.filter(user=self.request.user))
+        q_s2 = list(Post.objects.filter(user__in=friends, scope=Post.TIMELINE))
+        q_s3 = list(Post.objects.filter(group__in=groups).exclude(user=self.request.user))
+        q_s = q_s1 + q_s2 + q_s3
+        print('QS 1: {} \   n QS2 : {} \n S3: {}'.format(q_s1, q_s2, q_s3))
         posts = {}
-        for post in context['post_list']:
+        for post in q_s:
             flag = 0
             if len(Like.objects.filter(user=self.request.user, post=post)) > 0:
                 flag = 1
@@ -118,6 +127,7 @@ class UpdatePost(UpdateView):
         ctx['title'] = "Update"
         return ctx
 
+
 class UpdatePostGroup(UpdateView):
     template_name = 'create_post.html'
     model = Post
@@ -130,6 +140,7 @@ class UpdatePostGroup(UpdateView):
 
     def get_success_url(self):
        return reverse_lazy('group_detail', kwargs={'pk': self.object.group.id})
+
 
 def delete_post(request, pk):
     post = Post.objects.get(id=pk)
@@ -199,6 +210,7 @@ class UpdateGroup(UpdateView):
 
 def group_detail(request, pk):
     group = Group.objects.get(id=pk)
+    flag1 = CustomerGroup.objects.filter(user=request.user).exists()
     posts = {}
     for post in Post.objects.filter(group=group):
         flag = 0
@@ -223,12 +235,11 @@ def group_detail(request, pk):
         'posts': posts,
         'members': members,
         'users': users,
+        'flag1': flag1,
     }
     print(context)
 
     return render(request, 'detail_group.html', context)
-
-
 
 
 def delete_group(request, pk):
@@ -323,11 +334,67 @@ def create_post_like_group(request, pk, id):
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': group.id}))
 
 
-def join_group(request, pk, id):
+def add_to_group(request, pk, id):
     group = Group.objects.get(id=pk)
     user = User.objects.get(id=id)
     CustomerGroup.objects.create(
         group=group,
         user=user,
     )
+    return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))
+
+
+def user_profile(request, pk):
+    user = User.objects.get(id=pk)
+    posts = Post.objects.filter(user=user, scope=Post.TIMELINE)
+    friends = list(User.objects.filter(user_friend__user2=request.user))
+    print('friends: {}'.format(friends))
+    mutual_friends = [user]
+    flag = FriendShip.objects.filter(user1=request.user, user2=user).exists()
+    for friend in friends:
+        m_f = list(User.objects.filter(user_friend__user1=friend, user_friend__user2__in=friends))
+        print('m_F:  {}'.format(m_f))
+        for f in m_f:
+            if f not in mutual_friends:
+                mutual_friends.append(f)
+    mutual_friends.pop(0)
+    context = {
+        'user': user,
+        'posts': posts,
+        'mutual_friends': mutual_friends,
+        'flag': flag,
+    }
+
+    return render(request, 'user_profile.html', context)
+
+
+def create_friendship(request, pk):
+    user1 = request.user
+    user2 = User.objects.get(id=pk)
+    FriendShip.objects.create(user1=user1, user2=user2)
+    FriendShip.objects.create(user1=user2, user2=user1)
+
+    return HttpResponseRedirect(reverse('user_profile', kwargs={'pk': pk}))
+
+
+def remove_friendship(request, pk):
+    user1 = request.user
+    current_friend = User.objects.get(id=pk)
+    f1 = FriendShip.objects.get(user1=user1, user2=current_friend)
+    f2 = FriendShip.objects.get(user1=current_friend, user2=user1)
+    f1.delete()
+    f2.delete()
+    return HttpResponseRedirect(reverse('user_profile', kwargs={'pk': pk}))
+
+
+def join_group(request, pk):
+    group = Group.objects.get(id=pk)
+    CustomerGroup.objects.create(user=request.user, group=group)
+    return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))
+
+
+def leave_group(request, pk):
+    group = Group.objects.get(id=pk)
+    d = CustomerGroup.objects.get(user=request.user, group=group)
+    d.delete()
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))

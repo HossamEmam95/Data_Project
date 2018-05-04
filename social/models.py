@@ -5,6 +5,9 @@ from django.utils import timezone
 
 
 class User(AbstractUser):
+    MALE = 'M'
+    FEMALE = 'F'
+    CHOICES = ((MALE, 'MALE'), (FEMALE, 'FEMALE'))
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
@@ -12,6 +15,7 @@ class User(AbstractUser):
     address = models.CharField(max_length=50, null=True)
     work = models.CharField(max_length=50, null=True)
     birthday = models.DateField('Birthday', null=True)
+    gender = models.CharField(max_length=1, choices=CHOICES, null=True)
 
     def __str__(self):
         return self.first_name + " " + self.last_name
@@ -36,6 +40,8 @@ class Post(models.Model):
     group = models.ForeignKey(Group,
                               on_delete=models.CASCADE, related_name='post_group', null=True)
 
+    def __str__(self):
+        return self.body
 
 class Comment(models.Model):
     body = models.TextField()

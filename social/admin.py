@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (User, Post, Comment, Like, Group, CustomerGroup)
+from .models import (User, Post, Comment, Like, Group, CustomerGroup, FriendShip)
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -33,3 +33,4 @@ admin.site.register(Comment, CommentAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(CustomerGroup, CustomerGroupeAdmin)
+admin.site.register(FriendShip)

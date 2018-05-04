@@ -36,7 +36,10 @@ urlpatterns = [
         r'^create_group/',
         views.CreateGroup.as_view(),
         name='create_group'),
-
+    url(
+        r'^group_detail/(?P<pk>[0-9]+)/',
+        views.group_detail,
+        name='group_detail'),
     url(
         r'^update_group/(?P<pk>[0-9]+)/',
         views.UpdateGroup.as_view(),
@@ -62,19 +65,37 @@ urlpatterns = [
         views.remove_like,
         name='remove_like'),
     url(
-        r'^group_detail/(?P<pk>[0-9]+)/',
-        views.group_detail,
-        name='group_detail'),
-    url(
         r'^remove_like_group/(?P<pk>[0-9]+)/(?P<id>[0-9]+)/',
         views.remove_like_group,
         name='remove_like_group'),
-url(
+    url(
         r'^create_like_group/(?P<pk>[0-9]+)/(?P<id>[0-9]+)/',
         views.create_post_like_group,
         name='create_like_group'),
     url(
-        r'^join_group/(?P<pk>[0-9]+)/(?P<id>[0-9]+)/',
+        r'^add_to_group/(?P<pk>[0-9]+)/(?P<id>[0-9]+)/',
+        views.add_to_group,
+        name='add_to_group'),
+    url(
+        r'^user_profile/(?P<pk>[0-9]+)/',
+        views.user_profile,
+        name='user_profile'),
+    url(
+        r'^add_friend/(?P<pk>[0-9]+)/',
+        views.create_friendship,
+        name='add_friend'),
+    url(
+        r'^remove_friend/(?P<pk>[0-9]+)/',
+        views.remove_friendship,
+        name='remove_friend'),
+    url(
+        r'^join_group/(?P<pk>[0-9]+)/',
         views.join_group,
         name='join_group'),
-    ]
+    url(
+        r'^leave_group/(?P<pk>[0-9]+)/',
+        views.leave_group,
+        name='leave_group'),
+
+
+]

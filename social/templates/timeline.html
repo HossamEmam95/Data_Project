@@ -6,7 +6,7 @@
 </head>
 <body>
 {% for group in groups%}
-{{group}} <br>
+<a href="{% url 'group_detail' group.id %}">{{group}} <br>
 <a href="{% url 'update_group'  group.id %}">Edit Group</a><br>
 <a href="{% url 'delete_group'  group.id %}">Delete Group</a><br>
 
@@ -14,7 +14,10 @@
 <br><br><br>
 {% for key,value in posts.items %}
     {{value.post.body}}<br>
-    posted by: {{value.post.user.first_name}}<br>
+    posted by:
+    <a href="{% url 'user_profile' value.post.user.id %}">
+        {{value.post.user.first_name}}
+    </a><br>
     num likes: {{value.num_likes}}<br>
     comments: <br>
         {%for comment in value.comments%}

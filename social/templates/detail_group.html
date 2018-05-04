@@ -8,9 +8,19 @@
 <h1>{{group.name}}</h1>
 admin = {{group.admin}}<br><br><br>
 
+
+{%if flag1%}
+<a href="{%url 'leave_group' group.id%}">leave group</a>
+{%else%}
+<a href="{%url 'join_group' group.id%}">join group</a>
+{%endif%}
+<br><br>
 {% for key,value in posts.items %}
     {{value.post.body}}<br>
-    posted by: {{value.post.user.first_name}}<br>
+    posted by:
+    <a href="{% url 'user_profile' value.post.user.id %}">
+        {{value.post.user.first_name}}
+    </a><br>
     num likes: {{value.num_likes}}<br>
     comments: <br>
         {%for comment in value.comments%}
@@ -36,7 +46,7 @@ members: <br>
 users not in group <br><br>
 
 {%for user in users%}
-{{user}}  <a href="{% url 'join_group' group.id user.id %}">add to group</a> <br>
+{{user}}  <a href="{% url 'add_to_group' group.id user.id %}">add to group</a> <br>
 {%endfor%}
 </body>
 </html>
