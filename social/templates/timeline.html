@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TimeLine</title>
+</head>
+<body>
+{% for group in groups%}
+<a href="{% url 'group_detail' group.id %}">{{group}} <br>
+<a href="{% url 'update_group'  group.id %}">Edit Group</a><br>
+<a href="{% url 'delete_group'  group.id %}">Delete Group</a><br>
+
+{%endfor%}
+<br><br><br>
+{% for key,value in posts.items %}
+    {{value.post.body}}<br>
+    posted by:
+    <a href="{% url 'user_profile' value.post.user.id %}">
+        {{value.post.user.first_name}}
+    </a><br>
+    num likes: {{value.num_likes}}<br>
+    comments: <br>
+        {%for comment in value.comments%}
+        {{comment}}<br>
+        <a href="{% url 'delete_comment'  comment.id %}">Delete comment</a><br>
+        {%endfor%}
+    {%if not value.post_flag%}
+        <a href="{% url 'create_like'  value.post.id %}">Like</a>
+    {%else%}
+        <a href="{% url 'remove_like'  value.like_id %}">Dislike</a>
+    {%endif%}
+    <a href="{% url 'create_comment'  value.post.id %}">Comment</a> <br><br>
+    <a href="{% url 'update_post'  value.post.id %}">Edit Post</a><br>
+    <a href="{% url 'delete_post'  value.post.id %}">Delete Post</a><br>
+
+{%endfor%}
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+        <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
+</head>
+<style type="text/css">
+    .btn-inverse {
+        background-color: Black;
+        color: White;
+        }
+</style>
+<body>
+
+<nav class="navbar navbar-inverse">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav navbar-nav">
+                <li role="presentation" class="active">
+                    <a href="{% url 'home' %}">Home</a>
+                  </li>
+                  <li role="presentation">
+                    <a href="{% url 'timeline' %}">Timeline</a>
+                  </li>
+            </ul>
+    </div>
+        </div>
+    <div class="span12"></div>
+<div class="">
+    <a class="btn btn-inverse" href="{% url 'logout' %}">Logout</a>
+</div>
+</nav>
+    <div class="container">
+        <div class="col-md-7"></div>
+        <div class="col-md-3">
+                    <p><b> Name: </b> {{user.first_name}} {{user.last_name}}</p>
+                    <p><b>Email: </b> {{user.email}} </p>
+                    <p><b>Gender: </b>{{user.gender}}</p>
+                    <p><b>Birthday: </b>{{user.birthday}}</p>
+                    <p><b>Phone: </b>{{user.phone}}</p>
+                    <p><b>address: </b>{{user.address}}</p>
+                    <p><b>work: </b>{{user.work}}</p>
+            Posts: <br>
+
+            {%for post in posts%}
+            {{post}}
+            Posted by: {{post.user}}
+
+            {%endfor%}
+
+            <a href="{% url 'create_timeline'%}">POST</a>
+
+
+            Friends:<br>
+            {% for friend in friends %}
+            <a href="{% url 'user_profile' friend.id %}">{{friend}} </a> <br>
+            {%endfor%}
+
+            <br><br>
+            Group:<br>
+            {% for group in groups %}
+            <a href="{% url 'group_detail' group.id %}">{{group}}</a> <br>
+            {%endfor%}
+            </div>
+</div>
+</body>
+</html>

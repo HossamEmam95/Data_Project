@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import (User, Post, Comment, Like, Group, CustomerGroup)
+from .models import (User, Post, Comment, Like, Group, CustomerGroup, FriendShip)
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'birthday', 'email', 'age')
+    list_display = ('first_name', 'last_name', 'birthday', 'email')
     search_fields = ('first_name',)
 
 
@@ -33,3 +33,4 @@ admin.site.register(Comment, CommentAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(CustomerGroup, CustomerGroupeAdmin)
+admin.site.register(FriendShip)

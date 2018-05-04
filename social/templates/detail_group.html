@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Group</title>
+</head>
+<body>
+<h1>{{group.name}}</h1>
+admin = {{group.admin}}<br><br><br>
+
+
+{%if flag1%}
+<a href="{%url 'leave_group' group.id%}">leave group</a>
+{%else%}
+<a href="{%url 'join_group' group.id%}">join group</a>
+{%endif%}
+<br><br>
+{% for key,value in posts.items %}
+    {{value.post.body}}<br>
+    posted by:
+    <a href="{% url 'user_profile' value.post.user.id %}">
+        {{value.post.user.first_name}}
+    </a><br>
+    num likes: {{value.num_likes}}<br>
+    comments: <br>
+        {%for comment in value.comments%}
+        {{comment}}<br>
+        <a href="{% url 'delete_comment'  comment.id %}">Delete comment</a><br>
+        {%endfor%}
+    {%if not value.post_flag%}
+        <a href="{% url 'create_like_group'  value.post.id group.id %}">Like</a>
+    {%else%}
+        <a href="{% url 'remove_like_group'  value.like group.id %}">Dislike</a>
+    {%endif%}
+    <a href="{% url 'create_comment'  value.post.id %}">Comment</a> <br><br>
+    <a href="{% url 'update_post_group'  value.post.id %}">Edit Post</a><br>
+    <a href="{% url 'delete_post_group'  value.post.id group.id %}">Delete Post</a><br><br><br><br>
+
+{%endfor%}
+<a href="{% url 'create_post_group'  group.id %}">Post</a> <br><br>
+
+members: <br>
+{%for member in members%}
+{{member.user}} <br>
+{%endfor%}
+users not in group <br><br>
+
+{%for user in users%}
+{{user}}  <a href="{% url 'add_to_group' group.id user.id %}">add to group</a> <br>
+{%endfor%}
+</body>
+</html>
