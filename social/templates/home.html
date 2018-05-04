@@ -6,41 +6,49 @@
         <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
 </head>
 <style type="text/css">
-    .btn-inverse {
-        background-color: Black;
-        color: White;
-        }
-</style>
-<body>
+.bg-light {
+    background-color: #0b72da !important;
+    }
 
-<nav class="navbar navbar-inverse">
-    <div class="navbar-inner">
-        <div class="container">
-            <ul class="nav navbar-nav">
-                <li role="presentation" class="active">
-                    <a href="{% url 'home' %}">Home</a>
-                  </li>
-                  <li role="presentation">
-                    <a href="{% url 'timeline' %}">Timeline</a>
-                  </li>
-            </ul>
-    </div>
-        </div>
-    <div class="span12"></div>
-<div class="">
-    <a class="btn btn-inverse" href="{% url 'logout' %}">Logout</a>
-</div>
+</style>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;" >
+  <a class="navbar-brand" href="#"">Social Network |</a>`
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'timeline' %}">TimeLine</a>
+      </li>
+    </ul>
+    <span class="navbar-text">
+        <a class="btn btn-secondary" href="{% url 'logout' %}">Logout</a>
+    </span>
+  </div>
 </nav>
-    <div class="container">
-        <div class="col-md-7"></div>
-        <div class="col-md-3">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+
+        <div class="col-md-4">
+
                     <p><b> Name: </b> {{user.first_name}} {{user.last_name}}</p>
                     <p><b>Email: </b> {{user.email}} </p>
                     <p><b>Gender: </b>{{user.gender}}</p>
                     <p><b>Birthday: </b>{{user.birthday}}</p>
-                    <p><b>Phone: </b>{{user.phone}}</p>
+        </div>
+        <div class="col-md-4">
+                    <p><b>Phone: </b>{{user.phone_number}}</p>
                     <p><b>address: </b>{{user.address}}</p>
                     <p><b>work: </b>{{user.work}}</p>
+        </div>
+
+    </span>
+</div>
             Posts: <br>
 
             {%for post in posts%}
@@ -62,7 +70,9 @@
             {% for group in groups %}
             <a href="{% url 'group_detail' group.id %}">{{group}}</a> <br>
             {%endfor%}
-            </div>
+
+        </div>
+    </div>
 </div>
 </body>
 </html>
