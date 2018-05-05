@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
-        <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
 </head>
 <style type="text/css">
 .bg-light {
@@ -14,26 +14,32 @@
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;" >
-  <a class="navbar-brand" href="#"">Social Network |</a>`
+  <a class="navbar-brand" href="#" style="color:    #7b1717;">Social Network |</a>
   <div class="collapse navbar-collapse" id="navbarText">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{% url 'home' %}">Home<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'timeline' %}">TimeLine</a>
       </li>
     </ul>
     <span class="navbar-text">
-        <a class="btn btn-secondary" href="{% url 'logout' %}">Logout</a>
+        {%if request.user.is_authenticated %}
+            <a class="btn btn-secondary" href="{% url 'logout' %}">Logout</a>
+        {%else%}
+            <a class="btn btn-secondary" href="{% url 'login' %}">Login</a>
+            <a class="btn btn-success" href="{% url 'register' %}">Register</a>
+        {%endif%}
     </span>
   </div>
 </nav>
-
+<br><br>
+{%if request.user.is_authenticated %}
 <div class="container" style="border-color: black;">
+    <h3 class="text-center" style="color:Blue;"> Personal Data </h3>
     <div class="row">
         <div class="col-md-3"></div>
-
         <div class="col-md-4">
                     <p><b> Name: </b> {{user.first_name}} {{user.last_name}}</p>
                     <p><b>Email: </b> {{user.email}} </p>
@@ -46,36 +52,47 @@
                     <p><b>work: </b>{{user.work}}</p>
         </div>
     </div>
-
+    <br>
     <div class="row">
-        <span class="border-right border-primary">
-            <div class="col-md-1"></div>
-            <div class="col-md-4">
-
-                <h3 class="border-title"> Posts</h3>
-
+        <div class="col-md-4">
+            <h3 class="text-center" style="color:Blue;"> Posts </h3>
             {%for post in posts%}
-            {{post}}
-            Posted by: {{post.user}}
-
+                <div class="card" style="">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: Gray;">{{post.user}}</h5>
+                        <p class="card-text">{{post}}</p>
+                        <a href="#" class="btn btn-primary">Show Details</a>
+                    </div>
+                </div>
             {%endfor%}
-            </div>
-</span>
+        </div>
+        <div class="col-md-4">
+            <h3 class="text-center" style="color:Blue;"> Friends </h3>
+            {% for friend in friends %}
+                <div class="card" >
+                    <div class="card-body">
+                        <p class="card-text">{{friend}}</p>
+                        <a href="{% url 'user_profile' friend.id %}" class="btn btn-primary">Visit Page</a>
+                    </div>
+                </div>
+            {%endfor%}
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="text-center" style="color:Blue;"> Groups Enrolled </h3>
+            {% for group in groups %}
+                <div class="card" >
+                    <div class="card-body">
+                        <p class="card-text">{{group}}</p>
+                        <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">Visit Group</a>
+                    </div>
+                </div>
+            {%endfor%}
+        </div>
     </div>
 </div>
-            <a href="{% url 'create_timeline'%}">POST</a>
-
-
-            Friends:<br>
-            {% for friend in friends %}
-            <a href="{% url 'user_profile' friend.id %}">{{friend}} </a> <br>
-            {%endfor%}
-
-            <br><br>
-            Group:<br>
-            {% for group in groups %}
-            <a href="{% url 'group_detail' group.id %}">{{group}}</a> <br>
-            {%endfor%}
-
+{%else%}
+<h1 class="text-center" style="color:Red;">Welcome to our website login or register and enjoy !!!</h1>
+{%endif%}
 </body>
 </html>

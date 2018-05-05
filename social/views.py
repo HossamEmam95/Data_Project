@@ -11,19 +11,19 @@ from .models import User, Post, Group, Comment, Like, CustomerGroup, FriendShip
 
 
 def home(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('login'))
     user = request.user
-    groups = Group.objects.filter(group_user__user=request.user)
-    friends = User.objects.filter(user_friend__user2=user)
-    posts = Post.objects.filter(user=user)
-
-    context = {
-        'user': user,
-        'friends': friends,
-        'groups': groups,
-        'posts': posts,
-    }
+    if user.is_authenticated:
+        groups = Group.objects.filter(group_user__user=request.user)
+        friends = User.objects.filter(user_friend__user2=user)
+        posts = Post.objects.filter(user=user)
+        context = {
+            'user': user,
+            'friends': friends,
+            'groups': groups,
+            'posts': posts,
+        }
+    else:
+        context = {}
     return render(request, 'home.html', context)
 
 
