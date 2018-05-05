@@ -30,12 +30,11 @@
   </div>
 </nav>
 
-<div class="container">
+<div class="container" style="border-color: black;">
     <div class="row">
         <div class="col-md-3"></div>
 
         <div class="col-md-4">
-
                     <p><b> Name: </b> {{user.first_name}} {{user.last_name}}</p>
                     <p><b>Email: </b> {{user.email}} </p>
                     <p><b>Gender: </b>{{user.gender}}</p>
@@ -46,17 +45,24 @@
                     <p><b>address: </b>{{user.address}}</p>
                     <p><b>work: </b>{{user.work}}</p>
         </div>
+    </div>
 
-    </span>
-</div>
-            Posts: <br>
+    <div class="row">
+        <span class="border-right border-primary">
+            <div class="col-md-1"></div>
+            <div class="col-md-4">
+
+                <h3 class="border-title"> Posts</h3>
 
             {%for post in posts%}
             {{post}}
             Posted by: {{post.user}}
 
             {%endfor%}
-
+            </div>
+</span>
+    </div>
+</div>
             <a href="{% url 'create_timeline'%}">POST</a>
 
 
@@ -71,8 +77,5 @@
             <a href="{% url 'group_detail' group.id %}">{{group}}</a> <br>
             {%endfor%}
 
-        </div>
-    </div>
-</div>
 </body>
 </html>
