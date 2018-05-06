@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 
-from .models import User
+from .models import User, Post, Comment
 
 
 class LoginForm(forms.Form):
@@ -55,3 +55,27 @@ class RegisterForm(forms.ModelForm):
         if self.cleaned_data['email2'] != self.cleaned_data['email']:
             raise forms.ValidationError("The email doesn't match")
         return super(RegisterForm, self).clean()
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('body',)
+
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        self.fields['body'].label = ' '
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        widgets = {
+            'body': forms.Textarea(attrs={'rows': 1, 'cols': 50 }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.fields['body'].label = ' '
+

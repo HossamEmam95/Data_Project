@@ -53,6 +53,10 @@ urlpatterns = [
         views.CreateComment.as_view(),
         name='create_comment'),
     url(
+        r'^create_comment_group/(?P<pk>[0-9]+)/(?P<group>[0-9]+)/',
+        views.CreateComment.as_view(),
+        name='create_comment_group'),
+    url(
         r'^delete_comment/(?P<pk>[0-9]+)/',
         views.delete_comment,
         name='delete_comment'),

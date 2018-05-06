@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
 </head>
 <body>
-<form method="post" action="">
-    {% csrf_token %}
-    {{form}}
-    <button type="submit">Login</button>
-</form>
+{% include "nav.html" %}
+<br><br>
+<div class="content">
+    <div class="row">
+        <div class="col-md-4"></div>
+
+        <div class="col-md-4">
+            <div class="card" style="padding: 20px;">
+                <form method="post" action="" class="center">
+                    {% csrf_token %}
+                    <div style="padding: 10px 10px 00px 60px;">
+                    {% include 'form_snippet.html' %}
+                    </div><br>
+                    <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+        </div>
+</div>
 </body>
 </html>

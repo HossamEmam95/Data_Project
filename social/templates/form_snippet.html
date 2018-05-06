@@ -1,0 +1,41 @@
+{% block head %}
+    <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
+{% endblock %}
+{% block page_content %}
+<style type="text/css">
+.bg-light {
+    background-color: #0b72da !important;
+    }
+
+</style>
+
+
+{% if form.errors %}
+   {% for error in form.non_field_errors %}
+       <div class="alert alert-error">
+           <strong>{{ error|escape }}</strong>
+       </div>
+   {% endfor %}
+{% endif %}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+{% for field in form %}
+{% if field.is_hidden %}
+{{field}}
+{% else %}
+    <div class="control-group {% if field.field.required %} warning {% endif %}{% if field.errors %} error {% endif %}">
+        <div class="form-group">
+        <label for="exampleInputEmail1">{{ field.label }}</label><br>
+        {{ field }}
+        </div>
+        {% for error in field.errors %}
+        <p class="help-block">{{ error }}</p>
+        {% endfor %}
+        {% if field.help_text %}
+        <p class="text-info">{{ field.help_text|safe }}</p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endfor %}
+{% endblock%}
