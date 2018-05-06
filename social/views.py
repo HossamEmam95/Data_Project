@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.generic import CreateView, UpdateView, ListView
 from django.shortcuts import render, HttpResponseRedirect, reverse
 
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, PostForm
 from .models import User, Post, Group, Comment, Like, CustomerGroup, FriendShip
 
 
@@ -68,7 +68,7 @@ class CreatePostTimeLine(CreateView):
     template_name = 'create_post.html'
     success_url = reverse_lazy('timeline')
     model = Post
-    fields = ('body', )
+    form_class = PostForm
 
     def form_valid(self, form):
         instance = form.instance
@@ -88,6 +88,7 @@ class ListPosts(ListView):
     paginate_by = 15
 
     def get_context_data(self, **kwargs):
+        form = PostForm()
         context = super(ListPosts, self).get_context_data(**kwargs)
         friends = User.objects.filter(user_friend__user1=self.request.user)
         groups = Group.objects.filter(group_user__user=self.request.user)
@@ -95,7 +96,6 @@ class ListPosts(ListView):
         q_s2 = list(Post.objects.filter(user__in=friends, scope=Post.TIMELINE))
         q_s3 = list(Post.objects.filter(group__in=groups).exclude(user=self.request.user))
         q_s = q_s1 + q_s2 + q_s3
-        print('QS 1: {} \   n QS2 : {} \n S3: {}'.format(q_s1, q_s2, q_s3))
         posts = {}
         for post in q_s:
             flag = 0
@@ -112,6 +112,7 @@ class ListPosts(ListView):
                 'like_id': like,
             }
         context['posts'] = posts
+        context['post_form'] = form
         context['groups'] = Group.objects.all()
         return context
 
