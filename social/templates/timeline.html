@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>TimeLine</title>
-    <link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css"/>
 </head>
 <body>
 {% include 'nav.html' %}
+{% if request.user.is_authenticated%}
 <div class="container">
     <div class="row">
         <div class="col-md-4">
@@ -45,8 +45,37 @@
                             </a>
                         </h5>
                         <p class="card-text">{{value.post.body}}</p>
-
+                        {%if not value.post_flag%}
+                            <a href="{% url 'create_like'  value.post.id %}">
+                                <i class="fas fa-thumbs-up"></i>
+                            </a>
+                        {%else%}
+                            <a href="{% url 'remove_like'  value.like_id %}">
+                                <i class="fas fa-thumbs-down"></i>
+                            </a>
+                        {%endif%}
+                        {%if request.user == value.post.user%}
+                        <a href="{% url 'update_post'  value.post.id %}">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'delete_post'  value.post.id %}">
+                            <i class="fas fa-times-circle"></i>
+                        </a>
+                        {%endif%}
                         <p> {{value.num_likes}} <b style="color:#c32fd2">Likes</b> </p> <br>
+                        <form  method="post" action="{% url 'create_comment' value.post.id %}">
+                            {% csrf_token %}
+                            <div  style="padding: 10px 10px 00px 0px;">
+                            {% include 'form_snippet.html' with form=comment_form %}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-md-6"></div>
+                                <div class="col-md-6 col-md-2">
+                            <button class="btn btn-primary justify-content-end  " type="submit">Comment</button>
+                                </div></div><br><br>
+                        </form>
+                        {%if value.comments%}
+                        <h3 class="" style="color:Blue;"> Comments </h3>
                         {%for comment in value.comments%}
                             <div class="card" style="margin: 10px 10px 10px 10px; padding: 5px;">
                                 <div class="card-body">
@@ -63,20 +92,17 @@
                             </a>
                             </div>
                         {%endfor%}
-
-                        {%if not value.post_flag%}
-                            <a href="{% url 'create_like'  value.post.id %}">Like</a>
-                        {%else%}
-                            <a href="{% url 'remove_like'  value.like_id %}">Dislike</a>
                         {%endif%}
-                        <a href="{% url 'create_comment'  value.post.id %}">Comment</a> <br><br>
-                        <a href="{% url 'update_post'  value.post.id %}">Edit Post</a><br>
-                        <a href="{% url 'delete_post'  value.post.id %}">Delete Post</a><br>
+
                     </div>
                 </div>
             {%endfor%}
         </div>
 </div>
 </div>
+{%else%}
+<br>
+<h1 class="text-center" style="color:Red;">Welcome to our website login or register and enjoy !!!</h1>
+{% endif %}
 </body>
 </html>

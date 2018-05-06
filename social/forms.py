@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 
-from .models import User, Post
+from .models import User, Post, Comment
 
 
 class LoginForm(forms.Form):
@@ -65,3 +65,17 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields['body'].label = ' '
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        widgets = {
+            'body': forms.Textarea(attrs={'rows': 1, 'cols': 50 }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.fields['body'].label = ' '
+
