@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 
-from .models import User
+from .models import User, Post
 
 
 class LoginForm(forms.Form):
@@ -55,3 +55,13 @@ class RegisterForm(forms.ModelForm):
         if self.cleaned_data['email2'] != self.cleaned_data['email']:
             raise forms.ValidationError("The email doesn't match")
         return super(RegisterForm, self).clean()
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('body',)
+
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        self.fields['body'].label = ' '
