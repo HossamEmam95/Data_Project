@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style type="text/css">
+.bg-light {
+    background-color: #0b72da !important;
+    }
+</style>
+<body>
+{% include 'nav.html' %}
+
+<div class="container" style="border-color: black;">
+
+<h1>{{user}} Profile</h1>
+{%if flag%}
+<a href="{%url 'remove_friend' user.id%}">remove friend</a>
+{%else%}
+<a href="{%url 'add_friend' user.id%}">add friend</a>
+{%endif%}
+<h3>Mutual Friends</h3>
+{%for friend in mutual_friends%}
+<a href="{% url 'user_profile' friend.id %}">{{friend}}</a> <br>
+{%endfor%}
+
+<br><br><br>
+{%for post in posts%}
+    {{post}}<br>
+By: {{post.user}} <br> <br>
+{%endfor%}
+</div>
+</body>
+</html>

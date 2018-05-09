@@ -86,14 +86,26 @@
                                     </h5>
                                     <p class="card-text">{{comment}}</p>
                                 </div>
-
-                            <a href="{% url 'delete_comment'  comment.id %}">
-                                <span class="glyphicon glyphicon-remove-circle"></span>
-                            </a>
+                            {%if request.user == comment.user%}
+                                <a href="{% url 'delete_comment'  comment.id %}">
+                                    <span class="fas fa-times-circle"></span>
+                                </a>
+                            {%endif%}
                             </div>
                         {%endfor%}
                         {%endif%}
 
+                    </div>
+                </div>
+            {%endfor%}
+        </div>
+        <div class="col-md-2">
+            <h3 class="text-center" style="color:Blue; background-color: #79dafb;"> Other Users </h3>
+            {% for user in users %}
+                <div class="card" >
+                    <div class="card-body">
+                        <p class="card-text">{{user}}</p>
+                        <a href="{% url 'user_profile' user.id %}" class="btn btn-primary">Visit Page</a>
                     </div>
                 </div>
             {%endfor%}

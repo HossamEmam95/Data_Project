@@ -1,8 +1,6 @@
 from django.contrib.auth import (
     authenticate, login, logout
     )
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.hashers import make_password
 from django.views.generic import CreateView, UpdateView, ListView
@@ -12,21 +10,23 @@ from .forms import LoginForm, RegisterForm, PostForm, CommentForm
 from .models import User, Post, Group, Comment, Like, CustomerGroup, FriendShip
 
 
-@login_required()
 def home(request):
     user = request.user
     if user.is_authenticated:
         groups = Group.objects.filter(group_user__user=request.user)
         friends = User.objects.filter(user_friend__user2=user)
         posts = Post.objects.filter(user=user)
+        stats = stats_calc(user.id)
         context = {
             'user': user,
             'friends': friends,
             'groups': groups,
             'posts': posts,
+            'stats': stats,
         }
     else:
         context = {}
+
     return render(request, 'home.html', context)
 
 
@@ -67,7 +67,7 @@ class Register(CreateView):
         return super(Register, self).form_valid(form)
 
 
-class CreatePostTimeLine(CreateView, LoginRequiredMixin):
+class CreatePostTimeLine(CreateView):
     template_name = 'create_post.html'
     success_url = reverse_lazy('timeline')
     model = Post
@@ -85,7 +85,7 @@ class CreatePostTimeLine(CreateView, LoginRequiredMixin):
         return ctx
 
 
-class ListPosts(ListView, LoginRequiredMixin):
+class ListPosts(ListView):
     template_name = 'timeline.html'
     model = Post
     paginate_by = 15
@@ -95,6 +95,9 @@ class ListPosts(ListView, LoginRequiredMixin):
             context = super(ListPosts, self).get_context_data(**kwargs)
             friends = User.objects.filter(user_friend__user2=self.request.user)
             groups = Group.objects.filter(group_user__user=self.request.user)
+            users = User.objects.exclude(
+                user_friend__user2=self.request.user).exclude(
+                id=self.request.user.id)
             q_s1 = list(Post.objects.filter(user=self.request.user))
             q_s2 = list(Post.objects.filter(user__in=friends, scope=Post.TIMELINE))
             q_s3 = list(Post.objects.filter(group__in=groups).exclude(user=self.request.user))
@@ -117,6 +120,7 @@ class ListPosts(ListView, LoginRequiredMixin):
                     'like_id': like,
                 }
             context['posts'] = posts
+            context['users'] = users
             context['post_form'] = PostForm()
             context['comment_form'] = CommentForm()
             context['groups'] = Group.objects.all()
@@ -125,7 +129,7 @@ class ListPosts(ListView, LoginRequiredMixin):
         return context
 
 
-class UpdatePost(UpdateView, LoginRequiredMixin):
+class UpdatePost(UpdateView):
     template_name = 'create_post.html'
     success_url = reverse_lazy('timeline')
     model = Post
@@ -137,7 +141,7 @@ class UpdatePost(UpdateView, LoginRequiredMixin):
         return ctx
 
 
-class UpdatePostGroup(UpdateView, LoginRequiredMixin):
+class UpdatePostGroup(UpdateView):
     template_name = 'create_post.html'
     model = Post
     fields = ('body',)
@@ -151,14 +155,12 @@ class UpdatePostGroup(UpdateView, LoginRequiredMixin):
        return reverse_lazy('group_detail', kwargs={'pk': self.object.group.id})
 
 
-@login_required()
 def delete_post(request, pk):
     post = Post.objects.get(id=pk)
     post.delete()
     return HttpResponseRedirect(reverse('timeline'))
 
 
-@login_required()
 def delete_post_group(request, pk, hamada):
     post = Post.objects.get(id=pk)
     group = Group.objects.get(id=hamada)
@@ -166,7 +168,7 @@ def delete_post_group(request, pk, hamada):
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': group.id}))
 
 
-class CreatePostGroup(CreateView, LoginRequiredMixin):
+class CreatePostGroup(CreateView):
     template_name = 'create_post.html'
     model = Post
     fields = ('body', )
@@ -188,7 +190,7 @@ class CreatePostGroup(CreateView, LoginRequiredMixin):
         return reverse_lazy('group_detail', kwargs={'pk': post.group.id})
 
 
-class CreateGroup(CreateView, LoginRequiredMixin):
+class CreateGroup(CreateView):
     template_name = 'create_group.html'
     success_url = reverse_lazy('home')
     model = Group
@@ -207,7 +209,7 @@ class CreateGroup(CreateView, LoginRequiredMixin):
         return ctx
 
 
-class UpdateGroup(UpdateView, LoginRequiredMixin):
+class UpdateGroup(UpdateView):
     template_name = 'create_group.html'
     success_url = reverse_lazy('timeline')
     model = Group
@@ -219,7 +221,6 @@ class UpdateGroup(UpdateView, LoginRequiredMixin):
         return ctx
 
 
-@login_required()
 def group_detail(request, pk):
     group = Group.objects.get(id=pk)
     flag1 = CustomerGroup.objects.filter(user=request.user).exists()
@@ -235,9 +236,11 @@ def group_detail(request, pk):
         posts[str(post.id)] = {
             'post': post,
             'num_likes': len(Like.objects.filter(post=post)),
-            'like': like,
+            'like_id': like,
             'comments': Comment.objects.filter(post=post),
             'post_flag': flag,
+            'post_form': PostForm(),
+            'Comment_form': CommentForm(),
 
         }
     members = CustomerGroup.objects.filter(group=group)
@@ -254,14 +257,13 @@ def group_detail(request, pk):
     return render(request, 'detail_group.html', context)
 
 
-@login_required()
 def delete_group(request, pk):
     group = Group.objects.get(id=pk)
     group.delete()
     return HttpResponseRedirect(reverse('timeline'))
 
 
-class CreateComment(CreateView, LoginRequiredMixin):
+class CreateComment(CreateView):
     template_name = 'create_post.html'
     model = Comment
     success_url = reverse_lazy('timeline')
@@ -279,7 +281,7 @@ class CreateComment(CreateView, LoginRequiredMixin):
         return ctx
 
 
-class CreateCommentGroup(CreateView, LoginRequiredMixin):
+class CreateCommentGroup(CreateView):
     template_name = 'create_post.html'
     model = Comment
     form_class = CommentForm
@@ -299,7 +301,7 @@ class CreateCommentGroup(CreateView, LoginRequiredMixin):
         return reverse_lazy('group_detail', kwargs={'pk': self.kwargs['group']})
 
 
-class UpdateComment(UpdateGroup, LoginRequiredMixin):
+class UpdateComment(UpdateGroup):
     model = Comment
     success_url = reverse_lazy('timeline')
     template_name = 'create_comment.html'
@@ -311,14 +313,12 @@ class UpdateComment(UpdateGroup, LoginRequiredMixin):
         return ctx
 
 
-@login_required()
 def delete_comment(request, pk):
     comment = Comment.objects.get(id=pk)
     comment.delete()
     return HttpResponseRedirect(reverse('timeline'))
 
 
-@login_required()
 def create_post_like(request, pk):
     post = Post.objects.get(id=pk)
     try:
@@ -331,7 +331,6 @@ def create_post_like(request, pk):
     return HttpResponseRedirect(reverse('timeline'))
 
 
-@login_required()
 def create_comment_like(request, pk):
     comment = Comment.objects.get(id=pk)
     try:
@@ -344,14 +343,12 @@ def create_comment_like(request, pk):
     return HttpResponseRedirect(reverse('timeline'))
 
 
-@login_required()
 def remove_like(request, pk):
     like = Like.objects.get(id=pk)
     like.delete()
     return HttpResponseRedirect(reverse('timeline'))
 
 
-@login_required()
 def remove_like_group(request, pk, id):
     group = Group.objects.get(id=id)
     like = Like.objects.get(id=pk)
@@ -359,7 +356,6 @@ def remove_like_group(request, pk, id):
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': group.id}))
 
 
-@login_required()
 def create_post_like_group(request, pk, id):
     group = Group.objects.get(id=id)
     post = Post.objects.get(id=pk)
@@ -373,7 +369,6 @@ def create_post_like_group(request, pk, id):
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': group.id}))
 
 
-@login_required()
 def add_to_group(request, pk, id):
     group = Group.objects.get(id=pk)
     user = User.objects.get(id=id)
@@ -384,7 +379,6 @@ def add_to_group(request, pk, id):
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))
 
 
-@login_required()
 def user_profile(request, pk):
     user = User.objects.get(id=pk)
     posts = Post.objects.filter(user=user, scope=Post.TIMELINE)
@@ -399,17 +393,19 @@ def user_profile(request, pk):
             if f not in mutual_friends:
                 mutual_friends.append(f)
     mutual_friends.pop(0)
+
+    stats = stats_calc(pk)
     context = {
         'user': user,
         'posts': posts,
         'mutual_friends': mutual_friends,
         'flag': flag,
+        'stats': stats,
     }
 
     return render(request, 'user_profile.html', context)
 
 
-@login_required()
 def create_friendship(request, pk):
     user1 = request.user
     user2 = User.objects.get(id=pk)
@@ -419,7 +415,6 @@ def create_friendship(request, pk):
     return HttpResponseRedirect(reverse('user_profile', kwargs={'pk': pk}))
 
 
-@login_required()
 def remove_friendship(request, pk):
     user1 = request.user
     current_friend = User.objects.get(id=pk)
@@ -430,16 +425,35 @@ def remove_friendship(request, pk):
     return HttpResponseRedirect(reverse('user_profile', kwargs={'pk': pk}))
 
 
-@login_required()
+
 def join_group(request, pk):
     group = Group.objects.get(id=pk)
     CustomerGroup.objects.create(user=request.user, group=group)
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))
 
 
-@login_required()
 def leave_group(request, pk):
     group = Group.objects.get(id=pk)
     d = CustomerGroup.objects.get(user=request.user, group=group)
     d.delete()
     return HttpResponseRedirect(reverse('group_detail', kwargs={'pk': pk}))
+
+
+def stats_calc(pk):
+    user = User.objects.get(id=pk)
+    posts = Post.objects.filter(user=user)
+    num_posts = len(posts)
+    num_friends = len(FriendShip.objects.filter(user1=user))
+    num_likes_m = len(Like.objects.filter(user=user))
+    num_likes_r = 0
+    for post in posts:
+        num_likes_r += len(Like.objects.filter(post=post))
+
+    stats = {'stats': {
+        'num_posts': num_posts,
+        'num_friends': num_friends,
+        'num_likes_r': num_likes_r,
+        'num_likes_m': num_likes_m,
+    }
+    }
+    return stats

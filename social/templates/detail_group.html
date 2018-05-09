@@ -30,7 +30,7 @@ admin = {{group.admin}}<br><br><br>
     {%if not value.post_flag%}
         <a href="{% url 'create_like_group'  value.post.id group.id %}">Like</a>
     {%else%}
-        <a href="{% url 'remove_like_group'  value.like group.id %}">Dislike</a>
+        <a href="{% url 'remove_like_group'  value.like_id group.id %}">Dislike</a>
     {%endif%}
     <a href="{% url 'create_comment'  value.post.id %}">Comment</a> <br><br>
     <a href="{% url 'update_post_group'  value.post.id %}">Edit Post</a><br>

@@ -12,7 +12,24 @@
 <div class="container" style="border-color: black;">
     <h3 class="text-center" style="color:Blue;"> Personal Data </h3>
     <div class="row">
-        <div class="col-md-3"></div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+
+                    <h5 class="card-title">User Stats</h5>
+                    <p class="card-text">
+                        {% for key, value in stats.items %}
+                        <b>Number of Posts:</b> {{value.num_posts}}<br>
+                        <b>number of Friends:</b> {{value.num_friends}}<br>
+                        <b>number of Likes received:</b> {{value.num_likes_r}} <br>
+                        <b>Number of Likes Made:</b> {{value.num_likes_m}} <br>
+                        {%endfor%}
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
         <div class="col-md-4">
                     <p><b> Name: </b> {{user.first_name}} {{user.last_name}}</p>
                     <p><b>Email: </b> {{user.email}} </p>
